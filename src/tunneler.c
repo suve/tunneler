@@ -380,7 +380,7 @@ void Explosion( double x, double y, int n, int type )
 }
 
 
-inline void CTest_Sub( int y, int x, int i )
+void CTest_Sub( int y, int x, int i )
 {
     int y0, x0;
 
