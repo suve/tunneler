@@ -96,7 +96,7 @@ void Read_Config( void )
 	return;
     }
 
-    conffile = malloc( strlen(home) + strlen(CONF_FILE) + 1 );
+    conffile = malloc( strlen(home) + strlen(CONF_FILE) + 2 );
     sprintf( conffile, "%s/%s", home, CONF_FILE );
 #else
     char *end;
