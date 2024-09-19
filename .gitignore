@@ -1,0 +1,23 @@
+# Autotools stuff
+/Makefile
+/aclocal.m4
+/autom4te.cache/
+/compile
+/config.log
+/config.status
+/configure
+
+/src/Makefile
+/src/.deps
+/src/config.h
+/src/stamp-*
+
+*.in
+
+# Build leftovers
+*.o
+/src/tunneler
+
+# Editor files
+/.idea/
+/.vscode/
