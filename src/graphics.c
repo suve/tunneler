@@ -35,9 +35,6 @@ unsigned char font8x8[8][8][256];
 SDL_Surface *screen;
 Uint32 color[256];
 
-SDL_Rect **fs_modes;
-SDL_Rect **win_modes;
-
 int Video_fullscreen = 0;
 int Video_X = 800;
 int Video_Y = 600;
@@ -137,42 +134,6 @@ void Init_Video(void) {
 
 	SDL_FillRect(screen, NULL, color[0]);
 	SDL_Flip(screen);
-
-	win_modes = SDL_ListModes(NULL, SDL_HWSURFACE | SDL_DOUBLEBUF);
-	if(win_modes == (SDL_Rect **)-1) {
-		win_modes = malloc(5 * sizeof(SDL_Rect *));
-		win_modes[0] = malloc(sizeof(SDL_Rect));
-		win_modes[0]->w = 1024;
-		win_modes[0]->h = 768;
-		win_modes[1] = malloc(sizeof(SDL_Rect));
-		win_modes[1]->w = 800;
-		win_modes[1]->h = 600;
-		win_modes[2] = malloc(sizeof(SDL_Rect));
-		win_modes[2]->w = 640;
-		win_modes[2]->h = 480;
-		win_modes[3] = malloc(sizeof(SDL_Rect));
-		win_modes[3]->w = 320;
-		win_modes[3]->h = 240;
-		win_modes[4] = 0;
-	}
-
-	fs_modes = SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
-	if(fs_modes == (SDL_Rect **)-1) {
-		fs_modes = malloc(5 * sizeof(SDL_Rect *));
-		fs_modes[0] = malloc(sizeof(SDL_Rect));
-		fs_modes[0]->w = 1024;
-		fs_modes[0]->h = 768;
-		fs_modes[1] = malloc(sizeof(SDL_Rect));
-		fs_modes[1]->w = 800;
-		fs_modes[1]->h = 600;
-		fs_modes[2] = malloc(sizeof(SDL_Rect));
-		fs_modes[2]->w = 640;
-		fs_modes[2]->h = 480;
-		fs_modes[3] = malloc(sizeof(SDL_Rect));
-		fs_modes[3]->w = 320;
-		fs_modes[3]->h = 240;
-		fs_modes[4] = 0;
-	}
 
 	return;
 }

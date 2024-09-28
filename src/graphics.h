@@ -40,9 +40,6 @@ extern int Video_fullscreen;
 extern int Video_X;
 extern int Video_Y;
 
-extern SDL_Rect **fs_modes;
-extern SDL_Rect **win_modes;
-
 void Init_Font(void);
 void Init_Video(void);
 

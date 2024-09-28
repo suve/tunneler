@@ -420,20 +420,9 @@ void PrintKey(int x, int y, int key, Uint32 color) {
 }
 
 void Settings(void) {
-	int vmode;
 	int j = 0;
 	char str[22];
 	char str2[22];
-
-	if(Video_fullscreen == SDL_FULLSCREEN) {
-		for(vmode = 0; fs_modes[vmode]; vmode++) {
-			if(fs_modes[vmode]->w == Video_X && fs_modes[vmode]->h == Video_Y) break;
-		}
-	} else {
-		for(vmode = 0; win_modes[vmode]; vmode++) {
-			if(win_modes[vmode]->w == Video_X && win_modes[vmode]->h == Video_Y) break;
-		}
-	}
 
 	while(!key_quit) {
 		HandleEvents();
@@ -495,36 +484,6 @@ void Settings(void) {
 					Video_fullscreen = 0;
 				else
 					Video_fullscreen = SDL_FULLSCREEN;
-
-				vmode = 0;
-				if(Video_fullscreen == SDL_FULLSCREEN) {
-					Video_X = fs_modes[vmode]->w;
-					Video_Y = fs_modes[vmode]->h;
-				} else {
-					Video_X = win_modes[vmode]->w;
-					Video_Y = win_modes[vmode]->h;
-				}
-
-			} else if(j == 1 && Video_fullscreen == SDL_FULLSCREEN) {
-				vmode++;
-				if(fs_modes[vmode] != NULL) {
-					Video_X = fs_modes[vmode]->w;
-					Video_Y = fs_modes[vmode]->h;
-				} else {
-					vmode = 0;
-					Video_X = fs_modes[vmode]->w;
-					Video_Y = fs_modes[vmode]->h;
-				}
-			} else if(j == 1 && Video_fullscreen == 0) {
-				vmode++;
-				if(win_modes[vmode] != NULL) {
-					Video_X = win_modes[vmode]->w;
-					Video_Y = win_modes[vmode]->h;
-				} else {
-					vmode = 0;
-					Video_X = win_modes[vmode]->w;
-					Video_Y = win_modes[vmode]->h;
-				}
 			} else if(j == 2) {
 				PrintKey(8 * 8, 8 * 8, sym_pl[0].up, color[0]);
 				PutStr(8 * 8, 8 * 8, "key", color[12]);
@@ -806,40 +765,6 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		} else if(!strcmp(argv[i], "-fullscreen") || !strcmp(argv[i], "--fullscreen")) {
 			Video_fullscreen = SDL_FULLSCREEN;
-		} else if(!strcmp(argv[i], "--listmodes")) {
-			if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-				printf("Couldn't initialize SDL: %s\n", SDL_GetError());
-				exit(1);
-			}
-			atexit(SDL_Quit);
-
-			/* Windowed modes */
-			win_modes = SDL_ListModes(NULL, SDL_HWSURFACE | SDL_DOUBLEBUF);
-			if(win_modes == (SDL_Rect **)0) {
-				printf("No modes available windowed!\n");
-				exit(1);
-			}
-			if(win_modes == (SDL_Rect **)-1) {
-				printf("All resolutions available windowed.\n");
-			} else {
-				printf("Available modes windowed:\n");
-				for(j = 0; win_modes[j]; j++) printf("  %dx%d\n", win_modes[j]->w, win_modes[j]->h);
-			}
-
-			/* Fullscreen modes */
-			fs_modes = SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
-			if(fs_modes == (SDL_Rect **)0) {
-				printf("No modes available fullscreen!\n");
-				exit(1);
-			}
-			if(fs_modes == (SDL_Rect **)-1) {
-				printf("All resolutions available fullscreen.\n");
-			} else {
-				printf("Available modes fullscreen:\n");
-				for(j = 0; fs_modes[j]; j++) printf("  %dx%d\n", fs_modes[j]->w, fs_modes[j]->h);
-			}
-
-			return (0);
 		} else {
 			printf("Tunneler v." VERSION "\n");
 			printf("Copyright (c) 2004,2007 Taneli Kalvas\n");
@@ -848,7 +773,6 @@ int main(int argc, char *argv[]) {
 			printf("  -w width       set width of screen\n");
 			printf("  -h height      set height of screen\n");
 			printf("  -ai [0,1]      set tank as AI player (under development)\n");
-			printf("  --listmodes    list videomodes supported by SDL\n");
 			printf("  --fullscreen   use fullscreen videomode\n");
 			printf("  --version      display version\n");
 			return (0);
