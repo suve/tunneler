@@ -42,9 +42,61 @@
 char *argv0;
 char *conffile;
 
+static void Determine_Config_Path(void) {
+	char *home;
+
+#ifndef WIN32
+	if(conffile != NULL) return;
+
+	home = getenv("HOME");
+	if(home == NULL) {
+		printf("Environment variable HOME not defined!\n");
+		printf("Couldn't read configuration file!\n");
+		return;
+	}
+
+	conffile = malloc(strlen(home) + strlen(CONF_FILE) + 2);
+	sprintf(conffile, "%s/%s", home, CONF_FILE);
+#else
+	char *end;
+	char *str;
+
+	if(conffile != NULL) return;
+
+	if(*argv0 == '\"') argv0++;
+
+	end = argv0;
+	while(*end != '\0') end++;
+
+	while(*end != '\\' && end != argv0) end--;
+
+	if(*end == '\\') {
+		end++;
+
+		home = malloc(end - argv0 + 1);
+		str = home;
+		while(argv0 != end) {
+			*str = *argv0;
+			argv0++;
+			str++;
+		}
+		*str = '\0';
+
+		conffile = malloc(strlen(home) + strlen(CONF_FILE) + 1);
+		sprintf(conffile, "%s\\%s", home, CONF_FILE);
+		free(home);
+	} else {
+		conffile = malloc(strlen(CONF_FILE) + 1);
+		sprintf(conffile, "%s", CONF_FILE);
+	}
+#endif
+}
+
 /* Write settings to configuration file */
 void Write_Config(void) {
 	FILE *fp;
+
+	Determine_Config_Path();
 
 	fp = fopen(conffile, "w");
 	if(fp == NULL) {
@@ -80,48 +132,8 @@ void Read_Config(void) {
 	FILE *fp;
 	int k;
 	char buf[256];
-	char *home;
 
-#ifndef WIN32
-	home = getenv("HOME");
-	if(home == NULL) {
-		printf("Environment variable HOME not defined!\n");
-		printf("Couldn't read configuration file!\n");
-		return;
-	}
-
-	conffile = malloc(strlen(home) + strlen(CONF_FILE) + 2);
-	sprintf(conffile, "%s/%s", home, CONF_FILE);
-#else
-	char *end;
-	char *str;
-
-	if(*argv0 == '\"') argv0++;
-
-	end = argv0;
-	while(*end != '\0') end++;
-
-	while(*end != '\\' && end != argv0) end--;
-
-	if(*end == '\\') {
-		end++;
-
-		home = malloc(end - argv0 + 1);
-		str = home;
-		while(argv0 != end) {
-			*str = *argv0;
-			argv0++;
-			str++;
-		}
-		*str = '\0';
-
-		conffile = malloc(strlen(home) + strlen(CONF_FILE) + 1);
-		sprintf(conffile, "%s\\%s", home, CONF_FILE);
-	} else {
-		conffile = malloc(strlen(CONF_FILE) + 1);
-		sprintf(conffile, "%s", CONF_FILE);
-	}
-#endif
+	Determine_Config_Path();
 
 	fp = fopen(conffile, "r");
 	if(fp == NULL) {
