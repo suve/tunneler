@@ -29,9 +29,11 @@
 #define TUNNELER_GAME_H
 
 #ifndef WIN32
-#define CONF_FILE ".tunnelerrc"
+#define CONF_FILE_V1 ".tunnelerrc"
+#define CONF_FILE_V2 "settings.ini"
 #else
-#define CONF_FILE "tunneler.ini"
+#define CONF_FILE_V1 "tunneler.ini"
+#define CONF_FILE_V2 CONF_FILE_V1
 #endif
 
 /* Gameworld related configuration */

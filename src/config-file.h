@@ -29,7 +29,6 @@
 #define TUNNELER_CONFIG_FILE_H
 
 extern char *argv0;
-extern char *conffile;
 
 extern void Write_Config(void);
 

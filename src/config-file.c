@@ -33,20 +33,25 @@
 #include "terrain.h"
 #include "tunneler.h"
 #include "types.h"
+
 #include <SDL2/SDL.h>
+
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 char *argv0;
-char *conffile;
 
-static void Determine_Config_Path(void) {
+static char *conf_path_v1 = NULL;
+static char *conf_path_v2 = NULL;
+
+static void Determine_Config_Path_v1(void) {
 	char *home;
 
 #ifndef WIN32
-	if(conffile != NULL) return;
+	if(conf_path_v1 != NULL) return;
 
 	home = getenv("HOME");
 	if(home == NULL) {
@@ -55,13 +60,13 @@ static void Determine_Config_Path(void) {
 		return;
 	}
 
-	conffile = malloc(strlen(home) + strlen(CONF_FILE) + 2);
-	sprintf(conffile, "%s/%s", home, CONF_FILE);
+	conf_path_v1 = malloc(strlen(home) + strlen(CONF_FILE_V1) + 2);
+	sprintf(conf_path_v1, "%s/%s", home, CONF_FILE_V1);
 #else
 	char *end;
 	char *str;
 
-	if(conffile != NULL) return;
+	if(conf_path_v1 != NULL) return;
 
 	if(*argv0 == '\"') argv0++;
 
@@ -82,29 +87,46 @@ static void Determine_Config_Path(void) {
 		}
 		*str = '\0';
 
-		conffile = malloc(strlen(home) + strlen(CONF_FILE) + 1);
-		sprintf(conffile, "%s\\%s", home, CONF_FILE);
+		conf_path_v1 = malloc(strlen(home) + strlen(CONF_FILE_V1) + 1);
+		sprintf(conf_path_v1, "%s\\%s", home, CONF_FILE_V1);
 		free(home);
 	} else {
-		conffile = malloc(strlen(CONF_FILE) + 1);
-		sprintf(conffile, "%s", CONF_FILE);
+		conf_path_v1 = malloc(strlen(CONF_FILE_V1) + 1);
+		sprintf(conf_path_v1, "%s", CONF_FILE_V1);
 	}
 #endif
+}
+
+static void Determine_Config_Path_v2(void) {
+	char *prefpath;
+
+	if(conf_path_v2 != NULL) return;
+
+	prefpath = SDL_GetPrefPath("", "tunneler");
+	if(prefpath == NULL) {
+		printf("Failed to determine config path: %s\n", SDL_GetError());
+		return; // TODO: Handle this somehow?
+	}
+
+	conf_path_v2 = malloc(strlen(prefpath) + strlen(CONF_FILE_V2) + 1);
+	sprintf(conf_path_v2, "%s%s", prefpath, CONF_FILE_V2);
+
+	SDL_free(prefpath);
 }
 
 /* Write settings to configuration file */
 void Write_Config(void) {
 	FILE *fp;
 
-	Determine_Config_Path();
+	Determine_Config_Path_v2();
 
-	fp = fopen(conffile, "w");
+	fp = fopen(conf_path_v2, "w");
 	if(fp == NULL) {
-		printf("Couldn't write configuration file %s!\n", conffile);
+		printf("Failed to write configuration file at %s: %s\n", conf_path_v2, strerror(errno));
 		exit(1);
 	}
 
-	printf("Writing %s\n", conffile);
+	printf("Writing %s\n", conf_path_v2);
 	fprintf(fp, "# Tunneler configuration file.\n");
 	fprintf(fp, "# Do not edit.\n");
 	fprintf(fp, "fullscreen = %d\n", !!Video_fullscreen);
@@ -126,6 +148,20 @@ void Write_Config(void) {
 	fclose(fp);
 }
 
+static void Default_Config(void) {
+	sym_pl[0].up = SDLK_UP;
+	sym_pl[0].down = SDLK_DOWN;
+	sym_pl[0].left = SDLK_LEFT;
+	sym_pl[0].right = SDLK_RIGHT;
+	sym_pl[0].fire = SDLK_RSHIFT;
+
+	sym_pl[1].up = SDLK_w;
+	sym_pl[1].down = SDLK_s;
+	sym_pl[1].left = SDLK_a;
+	sym_pl[1].right = SDLK_d;
+	sym_pl[1].fire = SDLK_LCTRL;
+}
+
 /* Read contents of configuration file. A new file is created if there
  * is none. */
 void Read_Config(void) {
@@ -133,26 +169,20 @@ void Read_Config(void) {
 	int k;
 	char buf[256];
 
-	Determine_Config_Path();
-
-	fp = fopen(conffile, "r");
+	Determine_Config_Path_v2();
+	fp = fopen(conf_path_v2, "r");
 	if(fp == NULL) {
-		printf("Couldn't read configuration file!\n");
+		printf("Failed to read configuration file at %s: %s\n", conf_path_v2, strerror(errno));
 
-		sym_pl[0].up = SDLK_UP;
-		sym_pl[0].down = SDLK_DOWN;
-		sym_pl[0].left = SDLK_LEFT;
-		sym_pl[0].right = SDLK_RIGHT;
-		sym_pl[0].fire = SDLK_RSHIFT;
+		Determine_Config_Path_v1();
+		fp = fopen(conf_path_v1, "r");
+		if(fp == NULL) {
+			printf("Failed to read configuration file at %s: %s\n", conf_path_v1, strerror(errno));
 
-		sym_pl[1].up = SDLK_w;
-		sym_pl[1].down = SDLK_s;
-		sym_pl[1].left = SDLK_a;
-		sym_pl[1].right = SDLK_d;
-		sym_pl[1].fire = SDLK_LCTRL;
-
-		Write_Config();
-		return;
+			Default_Config();
+			Write_Config();
+			return;
+		}
 	}
 
 	/* Read configuration file */
