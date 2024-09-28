@@ -24,6 +24,10 @@ add_executable(tunneler
                src/terrain.c
                src/timer.c
                src/tunneler.c)
+
+add_custom_target(fmt
+                  COMMAND clang-format "--style=file:${PROJECT_SOURCE_DIR}/.clang-format" -i "${PROJECT_SOURCE_DIR}/src/*.c" "${PROJECT_SOURCE_DIR}/src/*.h")
+
 # for config.h
 target_include_directories(tunneler PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/src")
 target_link_libraries(tunneler PRIVATE SDL::SDL m)

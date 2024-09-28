@@ -24,7 +24,26 @@ jobs:
           command: >
             cmake --build build/
 
+  fmt:
+    executor: fedora
+    steps:
+      - run:
+          name: Install dependencies
+          command: >
+            sudo dnf install --assumeyes --setopt=install_weak_deps=False
+            clang-tools-extra git
+      - checkout
+      - run:
+          name: Reformat
+          command: >
+            clang-format -i src/*.c src/*.h
+      - run:
+          name: Compare
+          command: >
+            git diff -U4 --histogram --exit-code
+
 workflows:
   build:
     jobs:
       - build
+      - fmt

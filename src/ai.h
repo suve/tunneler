@@ -10,7 +10,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * SDL Tunneler is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -21,17 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
- * Questions, comments and bug reports should be sent to the author 
+ * Questions, comments and bug reports should be sent to the author
  * directly via email at tvkalvas@cc.jyu.fi
  */
- 
 
 #ifndef TUNNELER_AI_H
 #define TUNNELER_AI_H
 
-
-void Init_AI( void );
-void Handle_AI( int i );
-
+void Init_AI(void);
+void Handle_AI(int i);
 
 #endif /* End of file ai.h */

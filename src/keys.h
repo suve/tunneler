@@ -10,7 +10,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * SDL Tunneler is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -24,15 +24,12 @@
  * Questions, comments and bug reports should be sent to the author
  * directly via email at tvkalvas@cc.jyu.fi
  */
- 
 
 #ifndef TUNNELER_KEYS_H
 #define TUNNELER_KEYS_H
 
-
-#include <SDL/SDL.h>
 #include "types.h"
-
+#include <SDL/SDL.h>
 
 /* Keyboard definitions */
 extern player_keys_t sym_pl[2];
@@ -48,9 +45,6 @@ extern int key_menu_down;
 extern int key_menu_left;
 extern int key_menu_right;
 
-
-
-void HandleKeyEvent( SDL_KeyboardEvent *key );
-
+void HandleKeyEvent(SDL_KeyboardEvent *key);
 
 #endif /* End of file keys.h */
