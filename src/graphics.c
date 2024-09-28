@@ -26,12 +26,14 @@
  */
 
 #include "graphics.h"
+#include "config.h"
 #include "font8x8.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 unsigned char font8x8[8][8][256];
+SDL_Window *window;
 SDL_Surface *screen;
 Uint32 color[256];
 
@@ -57,6 +59,25 @@ void Init_Font(void) {
 	}
 }
 
+void OpenWindow(void) {
+	int flags = SDL_WINDOW_SHOWN;
+	if(Video_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	window = SDL_CreateWindow(
+		"Tunneler v." VERSION, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Video_X, Video_Y, SDL_WINDOW_SHOWN
+	);
+	if(window == NULL) {
+		printf("Failed to open window: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+	screen = SDL_GetWindowSurface(window);
+	if(screen == NULL) {
+		printf("Failed to retrieve window surface: %s\n", SDL_GetError());
+		exit(1);
+	}
+}
+
 void Init_Video(void) {
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Couldn't initialize SDL: %s\n", SDL_GetError());
@@ -64,15 +85,8 @@ void Init_Video(void) {
 	}
 	atexit(SDL_Quit);
 
-	screen = SDL_SetVideoMode(Video_X, Video_Y, 16, SDL_HWSURFACE | Video_fullscreen | SDL_DOUBLEBUF);
-	if(screen == NULL) {
-		printf("Couldn't set video mode %dx%dx16: %s\n", Video_X, Video_Y, SDL_GetError());
-		exit(1);
-	}
-
-	SDL_WarpMouse(0, 0);
+	OpenWindow();
 	SDL_ShowCursor(SDL_DISABLE);
-	SDL_WM_SetCaption("Tunneler", "Tunneler");
 
 	/* Black and white */
 	color[0] = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
@@ -133,7 +147,7 @@ void Init_Video(void) {
 	color[69] = SDL_MapRGB(screen->format, 0xaa, 0xaa, 0xaa);
 
 	SDL_FillRect(screen, NULL, color[0]);
-	SDL_Flip(screen);
+	SDL_UpdateWindowSurface(window);
 
 	return;
 }

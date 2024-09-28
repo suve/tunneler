@@ -13,7 +13,7 @@ jobs:
           name: Install dependencies
           command: >
             sudo dnf install --assumeyes --setopt=install_weak_deps=False
-            cmake gcc git make SDL-devel
+            cmake gcc git make SDL2-devel
       - checkout
       - run:
           name: Generate Makefiles

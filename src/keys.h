@@ -29,7 +29,7 @@
 #define TUNNELER_KEYS_H
 
 #include "types.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 /* Keyboard definitions */
 extern player_keys_t sym_pl[2];

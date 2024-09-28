@@ -33,7 +33,7 @@
 #include "terrain.h"
 #include "tunneler.h"
 #include "types.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +55,7 @@ void Write_Config(void) {
 	printf("Writing %s\n", conffile);
 	fprintf(fp, "# Tunneler configuration file.\n");
 	fprintf(fp, "# Do not edit.\n");
-	fprintf(fp, "fullscreen = %d\n", Video_fullscreen == SDL_FULLSCREEN);
+	fprintf(fp, "fullscreen = %d\n", !!Video_fullscreen);
 	fprintf(fp, "width = %d\n", Video_X);
 	fprintf(fp, "height = %d\n", Video_Y);
 
@@ -153,7 +153,7 @@ void Read_Config(void) {
 		if(buf[0] == '#' || buf[0] == '\0' || buf[0] == '\n') continue;
 
 		if(!strncmp(buf, "fullscreen =", 12)) {
-			if(atoi(&buf[12]) == 1) Video_fullscreen = SDL_FULLSCREEN;
+			if(atoi(&buf[12]) == 1) Video_fullscreen = 1;
 		} else if(!strncmp(buf, "width =", 7))
 			Video_X = atoi(&buf[7]);
 		else if(!strncmp(buf, "height =", 8))
@@ -459,7 +459,7 @@ void Settings(void) {
 		PutStr(1 * 8, 11 * 8, "Right:", color[12]);
 		PutStr(1 * 8, 12 * 8, "Fire:", color[12]);
 
-		snprintf(str, 21, "%6s", Video_fullscreen == SDL_FULLSCREEN ? "true" : "false");
+		snprintf(str, 21, "%6s", Video_fullscreen ? "true" : "false");
 		PutStr(13 * 8, 4 * 8, str, color[j == 0 ? 12 : 13]);
 
 		snprintf(str2, 21, "%dx%d", Video_X, Video_Y);
@@ -480,93 +480,86 @@ void Settings(void) {
 
 		if(key_menu_enter) {
 			if(j == 0) {
-				if(Video_fullscreen == SDL_FULLSCREEN)
-					Video_fullscreen = 0;
-				else
-					Video_fullscreen = SDL_FULLSCREEN;
+				Video_fullscreen = !Video_fullscreen;
 			} else if(j == 2) {
 				PrintKey(8 * 8, 8 * 8, sym_pl[0].up, color[0]);
 				PutStr(8 * 8, 8 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[0].up = GetKeyPress();
 			} else if(j == 3) {
 				PrintKey(8 * 8, 9 * 8, sym_pl[0].down, color[0]);
 				PutStr(8 * 8, 9 * 8, str, color[0]);
 				PutStr(8 * 8, 9 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[0].down = GetKeyPress();
 			} else if(j == 4) {
 				PrintKey(8 * 8, 10 * 8, sym_pl[0].left, color[0]);
 				PutStr(8 * 8, 10 * 8, str, color[0]);
 				PutStr(8 * 8, 10 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[0].left = GetKeyPress();
 			} else if(j == 5) {
 				PrintKey(8 * 8, 11 * 8, sym_pl[0].right, color[0]);
 				PutStr(8 * 8, 11 * 8, str, color[0]);
 				PutStr(8 * 8, 11 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[0].right = GetKeyPress();
 			} else if(j == 6) {
 				PrintKey(8 * 8, 12 * 8, sym_pl[0].fire, color[0]);
 				PutStr(8 * 8, 12 * 8, str, color[0]);
 				PutStr(8 * 8, 12 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[0].fire = GetKeyPress();
 			} else if(j == 7) {
 				PrintKey(14 * 8, 8 * 8, sym_pl[1].up, color[0]);
 				PutStr(14 * 8, 8 * 8, str, color[0]);
 				PutStr(14 * 8, 8 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[1].up = GetKeyPress();
 			} else if(j == 8) {
 				PrintKey(14 * 8, 9 * 8, sym_pl[1].down, color[0]);
 				PutStr(14 * 8, 9 * 8, str, color[0]);
 				PutStr(14 * 8, 9 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[1].down = GetKeyPress();
 			} else if(j == 9) {
 				PrintKey(14 * 8, 10 * 8, sym_pl[1].left, color[0]);
 				PutStr(14 * 8, 10 * 8, str, color[0]);
 				PutStr(14 * 8, 10 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[1].left = GetKeyPress();
 			} else if(j == 10) {
 				PrintKey(14 * 8, 11 * 8, sym_pl[1].right, color[0]);
 				PutStr(14 * 8, 11 * 8, str, color[0]);
 				PutStr(14 * 8, 11 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[1].right = GetKeyPress();
 			} else if(j == 11) {
 				PrintKey(14 * 8, 12 * 8, sym_pl[1].fire, color[0]);
 				PutStr(14 * 8, 12 * 8, str, color[0]);
 				PutStr(14 * 8, 12 * 8, "key", color[12]);
-				SDL_Flip(screen);
+				SDL_UpdateWindowSurface(window);
 
 				sym_pl[1].fire = GetKeyPress();
 			}
 
 			if(j == 0 || j == 1) {
-				screen = SDL_SetVideoMode(Video_X, Video_Y, 16, SDL_HWSURFACE | Video_fullscreen | SDL_DOUBLEBUF);
-				if(screen == NULL) {
-					printf("Couldn't set video mode %dx%dx16: %s\n", Video_X, Video_Y, SDL_GetError());
-					exit(1);
-				}
+				OpenWindow();
 			}
 
 			key_menu_enter = 0;
 		}
 
-		SDL_Flip(screen);
+		SDL_UpdateWindowSurface(window);
 		SDL_Delay(10);
 	}
 
@@ -603,7 +596,7 @@ void Information(void) {
 	key_menu_enter = 0;
 	key_quit = 0;
 
-	SDL_Flip(screen);
+	SDL_UpdateWindowSurface(window);
 	SDL_Delay(10);
 
 	while(!key_quit) {
@@ -637,7 +630,7 @@ void Print_Stats(void) {
 	key_menu_enter = 0;
 	key_quit = 0;
 
-	SDL_Flip(screen);
+	SDL_UpdateWindowSurface(window);
 	SDL_Delay(10);
 
 	while(!key_quit) {
@@ -676,7 +669,7 @@ void Print_Field(void) {
 	}
 
 	SDL_UnlockSurface(screen);
-	SDL_Flip(screen);
+	SDL_UpdateWindowSurface(window);
 	SDL_Delay(10);
 
 	while(!key_quit) {
@@ -698,7 +691,7 @@ void Main_Game(void) {
 
 	SDL_FillRect(screen, NULL, color[0]);
 	DrawFrames();
-	SDL_Flip(screen);
+	SDL_UpdateWindowSurface(window);
 	DrawFrames();
 
 	Init_Field();
@@ -711,7 +704,7 @@ void Main_Game(void) {
 		HandleActions(dt);
 
 		Draw();
-		SDL_Flip(screen);
+		SDL_UpdateWindowSurface(window);
 	}
 
 	key_quit = 0;
@@ -764,7 +757,7 @@ int main(int argc, char *argv[]) {
 			printf("SDL Tunneler v." VERSION "\n");
 			exit(1);
 		} else if(!strcmp(argv[i], "-fullscreen") || !strcmp(argv[i], "--fullscreen")) {
-			Video_fullscreen = SDL_FULLSCREEN;
+			Video_fullscreen = 1;
 		} else {
 			printf("Tunneler v." VERSION "\n");
 			printf("Copyright (c) 2004,2007 Taneli Kalvas\n");
@@ -811,7 +804,7 @@ int main(int argc, char *argv[]) {
 			key_menu_down = 0;
 
 			SDL_FillRect(screen, NULL, color[0]);
-			PutStr(67, 11, "SDL", color[12]);
+			PutStr(67, 11, "SDL2", color[12]);
 			PutStr(18, 20, "Tunneler v." VERSION, color[12]);
 			PutStr(50, 55, "Start Game", color[j == 0 ? 12 : 13]);
 			PutStr(50, 65, "Settings", color[j == 1 ? 12 : 13]);
@@ -837,7 +830,7 @@ int main(int argc, char *argv[]) {
 				break;
 			}
 
-			SDL_Flip(screen);
+			SDL_UpdateWindowSurface(window);
 			SDL_Delay(10);
 		}
 	}

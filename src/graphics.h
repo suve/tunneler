@@ -28,17 +28,20 @@
 #ifndef TUNNELER_GRAPHICS_H
 #define TUNNELER_GRAPHICS_H
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #define RES_X 160
 #define RES_Y 120
 
+extern SDL_Window *window;
 extern SDL_Surface *screen;
 extern Uint32 color[256];
 
 extern int Video_fullscreen;
 extern int Video_X;
 extern int Video_Y;
+
+void OpenWindow(void);
 
 void Init_Font(void);
 void Init_Video(void);

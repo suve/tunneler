@@ -25,7 +25,7 @@
  * directly via email at tvkalvas@cc.jyu.fi
  */
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 Uint32 now, old;
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19)
 # name + version from configure.ac's AC_INIT
 project(tunneler LANGUAGES C VERSION 1.1.1)
 
-find_package(SDL REQUIRED)
+find_package(SDL2 REQUIRED)
 
 # values from autotools-generated config.h
 set(PACKAGE "${CMAKE_PROJECT_NAME}")
@@ -30,4 +30,4 @@ add_custom_target(fmt
 
 # for config.h
 target_include_directories(tunneler PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/src")
-target_link_libraries(tunneler PRIVATE SDL::SDL m)
+target_link_libraries(tunneler PRIVATE SDL2::SDL2 m)
