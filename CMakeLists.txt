@@ -18,6 +18,7 @@ configure_file(src/config.h.cmake-in src/config.h)
 
 add_executable(tunneler
                src/ai.c
+               src/config-file.c
                src/graphics.c
                src/keys.c
                src/main.c
