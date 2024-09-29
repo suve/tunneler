@@ -44,6 +44,8 @@
 
 char *argv0;
 
+#define ARRAY_LENGTH(a) (sizeof(a) / sizeof(a[0]))
+
 struct KeyMapping {
 	unsigned int old; // SDL1 key
 	SDL_KeyCode new; // SDL2 key
@@ -200,8 +202,7 @@ static int km_cmp(const void *a, const void *b) {
 }
 
 static SDL_KeyCode Translate_Keycode(unsigned int old) {
-	void *found =
-		bsearch(&old, KEY_MAPPING, sizeof(KEY_MAPPING) / sizeof(struct KeyMapping), sizeof(struct KeyMapping), &km_cmp);
+	void *found = bsearch(&old, KEY_MAPPING, ARRAY_LENGTH(KEY_MAPPING), sizeof(struct KeyMapping), &km_cmp);
 
 	if(found != NULL) {
 		struct KeyMapping *km = found;
@@ -329,13 +330,63 @@ static void Default_Config(void) {
 	sym_pl[1].fire = SDLK_LCTRL;
 }
 
+static int Split_Line(char *line, char **key, char **val) {
+	char *eq;
+
+	eq = strchr(line, '=');
+	if(eq == NULL) return 0;
+
+	// Move value-pointer past the "equals" sign, and skip any whitespace
+	*val = eq + 1;
+	while((**val > '\0') && (**val <= ' ')) ++(*val);
+
+	// Locate first non-whitespace char before "equals" sign
+	--eq;
+	while((eq >= line) && (*eq > '\0') && (*eq <= ' ')) --eq;
+
+	// Went off the start of the string? Looks like the key is an empty string
+	if(eq < line) return 0;
+
+	*(eq + 1) = '\0';
+	*key = line;
+}
+
+struct ConfigKey {
+	char *name;
+	int *value;
+	int translate;
+};
+#define CONFKEY(n, v, t) \
+	(struct ConfigKey) { \
+		.name = (n), .value = &(v), .translate = (t) \
+	}
+
+static const struct ConfigKey CONFIG_KEYS[] = {
+	CONFKEY("fullscreen", Video_fullscreen, 0),
+	CONFKEY("width", Video_X, 0),
+	CONFKEY("height", Video_Y, 0),
+	CONFKEY("pl0_up", sym_pl[0].up, 1),
+	CONFKEY("pl0_right", sym_pl[0].right, 1),
+	CONFKEY("pl0_down", sym_pl[0].down, 1),
+	CONFKEY("pl0_left", sym_pl[0].left, 1),
+	CONFKEY("pl0_fire", sym_pl[0].fire, 1),
+	CONFKEY("pl1_up", sym_pl[1].up, 1),
+	CONFKEY("pl1_right", sym_pl[1].right, 1),
+	CONFKEY("pl1_down", sym_pl[1].down, 1),
+	CONFKEY("pl1_left", sym_pl[1].left, 1),
+	CONFKEY("pl1_fire", sym_pl[1].fire, 1),
+};
+
 /* Read contents of configuration file. A new file is created if there
  * is none. */
 void Read_Config(void) {
 	FILE *fp;
-	int k;
 	int ver;
+	int line_no;
 	char buf[256];
+	char *key, *val;
+	int k;
+	int value;
 
 	Determine_Config_Path_v2();
 	fp = fopen(conf_path_v2, "r");
@@ -358,54 +409,34 @@ void Read_Config(void) {
 	}
 
 	/* Read configuration file */
-	k = 0;
+	line_no = 0;
 	while(1) {
-		k++;
-		if(fgets(buf, 256, fp) == NULL) break;
+		++line_no;
+		if(fgets(buf, sizeof(buf), fp) == NULL) break;
 
 		/* Skip commented and empty lines */
 		if(buf[0] == '#' || buf[0] == '\0' || buf[0] == '\n') continue;
 
-		if(!strncmp(buf, "fullscreen =", 12)) {
-			if(atoi(&buf[12]) == 1) Video_fullscreen = 1;
-		} else if(!strncmp(buf, "width =", 7)) {
-			Video_X = atoi(&buf[7]);
-		} else if(!strncmp(buf, "height =", 8)) {
-			Video_Y = atoi(&buf[8]);
-		} else if(!strncmp(buf, "pl0_up =", 8)) {
-			sym_pl[0].up = atoi(&buf[8]);
-			if(ver == 1) sym_pl[0].up = Translate_Keycode(sym_pl[0].up);
-		} else if(!strncmp(buf, "pl0_down =", 10)) {
-			sym_pl[0].down = atoi(&buf[10]);
-			if(ver == 1) sym_pl[0].down = Translate_Keycode(sym_pl[0].down);
-		} else if(!strncmp(buf, "pl0_left =", 10)) {
-			sym_pl[0].left = atoi(&buf[10]);
-			if(ver == 1) sym_pl[0].left = Translate_Keycode(sym_pl[0].left);
-		} else if(!strncmp(buf, "pl0_right =", 11)) {
-			sym_pl[0].right = atoi(&buf[11]);
-			if(ver == 1) sym_pl[0].right = Translate_Keycode(sym_pl[0].right);
-		} else if(!strncmp(buf, "pl0_fire =", 10)) {
-			sym_pl[0].fire = atoi(&buf[10]);
-			if(ver == 1) sym_pl[0].fire = Translate_Keycode(sym_pl[0].fire);
-		} else if(!strncmp(buf, "pl1_up =", 8)) {
-			sym_pl[1].up = atoi(&buf[8]);
-			if(ver == 1) sym_pl[1].up = Translate_Keycode(sym_pl[1].up);
-		} else if(!strncmp(buf, "pl1_down =", 10)) {
-			sym_pl[1].down = atoi(&buf[10]);
-			if(ver == 1) sym_pl[1].down = Translate_Keycode(sym_pl[1].down);
-		} else if(!strncmp(buf, "pl1_left =", 10)) {
-			sym_pl[1].left = atoi(&buf[10]);
-			if(ver == 1) sym_pl[1].left = Translate_Keycode(sym_pl[1].left);
-		} else if(!strncmp(buf, "pl1_right =", 11)) {
-			sym_pl[1].right = atoi(&buf[11]);
-			if(ver == 1) sym_pl[1].right = Translate_Keycode(sym_pl[1].right);
-		} else if(!strncmp(buf, "pl1_fire =", 10)) {
-			sym_pl[1].fire = atoi(&buf[10]);
-			if(ver == 1) sym_pl[1].fire = Translate_Keycode(sym_pl[1].fire);
-		} else {
-			printf("Unknown field in configuration file on line %d\n", k);
+		if(!Split_Line(buf, &key, &val)) {
+			printf("Failed to parse line %d:\n\t%s\n", line_no, buf);
 			exit(1);
 		}
+
+		k = 0;
+		while(k < ARRAY_LENGTH(CONFIG_KEYS)) {
+			if(strcmp(CONFIG_KEYS[k].name, key) == 0) break;
+			++k;
+		}
+
+		if(k >= ARRAY_LENGTH(CONFIG_KEYS)) {
+			printf("Unknown field in configuration file on line %d: \"%s\"\n", line_no, key);
+			exit(1);
+		}
+
+		value = atoi(val); // TODO: Use strtol to catch invalid values
+		if((CONFIG_KEYS[k].translate) && (ver == 1)) value = Translate_Keycode(value);
+
+		*(CONFIG_KEYS[k].value) = value;
 	}
 
 	fclose(fp);
