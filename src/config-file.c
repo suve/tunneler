@@ -349,6 +349,8 @@ static int Split_Line(char *line, char **key, char **val) {
 
 	*(eq + 1) = '\0';
 	*key = line;
+
+	return 1;
 }
 
 struct ConfigKey {
@@ -385,7 +387,7 @@ void Read_Config(void) {
 	int line_no;
 	char buf[256];
 	char *key, *val;
-	int k;
+	size_t k;
 	int value;
 
 	Determine_Config_Path_v2();

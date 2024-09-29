@@ -313,11 +313,11 @@ void Settings(void) {
 		PutStr(1 * 8, 11 * 8, "Right:", color[12]);
 		PutStr(1 * 8, 12 * 8, "Fire:", color[12]);
 
-		snprintf(str, 21, "%6s", Video_fullscreen ? "true" : "false");
+		snprintf(str, sizeof(str), "%6s", Video_fullscreen ? "true" : "false");
 		PutStr(13 * 8, 4 * 8, str, color[j == 0 ? 12 : 13]);
 
-		snprintf(str2, 21, "%dx%d", Video_X, Video_Y);
-		snprintf(str, 21, "%9s", str2);
+		snprintf(str2, sizeof(str2), "%dx%d", Video_X, Video_Y);
+		snprintf(str, sizeof(str), "%9s", str2);
 		PutStr(10 * 8, 5 * 8, str, color[j == 1 ? 12 : 13]);
 
 		PrintKey(8 * 8, 8 * 8, sym_pl[0].up, color[j == 2 ? 12 : 13]);
@@ -567,6 +567,9 @@ void Main_Game(void) {
 int main(int argc, char *argv[]) {
 	int j;
 	int i = 1;
+
+	// Suppress compiler warning about unused argument
+	((void)argc);
 
 	argv0 = argv[0];
 	Read_Config();

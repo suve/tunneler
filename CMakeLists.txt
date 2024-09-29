@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.19)
 # name + version from configure.ac's AC_INIT
 project(tunneler LANGUAGES C VERSION 1.1.1)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wfloat-equal -Wparentheses")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror=incompatible-pointer-types -Werror=discarded-qualifiers -Werror=int-conversion -Werror=div-by-zero -Werror=sequence-point -Werror=uninitialized -Werror=duplicated-cond -Werror=return-mismatch -Werror=return-type")
+
 find_package(SDL2 REQUIRED)
 
 # values from autotools-generated config.h
